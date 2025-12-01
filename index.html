@@ -43,26 +43,24 @@
             CLIENT_INFO_SHEET: 'Client Info',
             APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbynP-7NA6OgMENqgH8HE4BR_VuP1lxf7syPOB_avUX570Sm2Ci2a4LELJUN9ukA9-QT/exec',
 
-            // Ads Masterlist Columns
             COPIES_COLUMNS: {
-                STATUS: 0,              // Column A
-                COPY_ID: 1,             // Column B - Ad Name
-                CAMPAIGN_NAME: 2,       // Column C - Campaign Angle
-                HEADLINE: 3,            // Column D
-                AD_COPY_TEXT: 4,        // Column E - Ad Copy (Body)
-                NOTES: 9,               // Column J - Client Note
-                LAST_UPDATED: 10        // Column K - Updated Date
+                STATUS: 0,
+                COPY_ID: 1,
+                CAMPAIGN_NAME: 2,
+                HEADLINE: 3,
+                AD_COPY_TEXT: 4,
+                NOTES: 9,
+                LAST_UPDATED: 10
             },
 
-            // Creative Assets Columns
             ASSETS_COLUMNS: {
-                ASSET_ID: 0,          // Column A
-                COPY_ID: 1,           // Column B - Ad Name
-                ASSET_NAME: 2,        // Column C
-                ASSET_URL: 4,         // Column E - Direct URL (converted)
-                ASSET_TYPE: 5,        // Column F
-                STATUS: 6,            // Column G
-                FEEDBACK_NOTES: 7     // Column H
+                ASSET_ID: 0,
+                COPY_ID: 1,
+                ASSET_NAME: 2,
+                ASSET_URL: 4,
+                ASSET_TYPE: 5,
+                STATUS: 6,
+                FEEDBACK_NOTES: 7
             },
 
             CLIENT_COLUMNS: {
@@ -302,6 +300,10 @@
         };
 
         const AdCopyCard = ({ copy, creatives, updating, onStatusUpdate, editNotes, onNotesChange }) => {
+            const [isExpanded, setIsExpanded] = useState(false);
+            const bodyLength = copy.adCopyText?.length || 0;
+            const shouldCollapse = bodyLength > 200;
+
             return (
                 <div style={{
                     backgroundColor: 'white',
@@ -343,7 +345,42 @@
                                 lineHeight: '1.5',
                                 whiteSpace: 'pre-wrap'
                             }}>
-                                {copy.adCopyText}
+                                {shouldCollapse && !isExpanded ? (
+                                    <>
+                                        {copy.adCopyText.substring(0, 200)}...{' '}
+                                        <span
+                                            onClick={() => setIsExpanded(true)}
+                                            style={{
+                                                color: '#1877f2',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                userSelect: 'none'
+                                            }}
+                                        >
+                                            See more
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>
+                                        {copy.adCopyText}
+                                        {shouldCollapse && isExpanded && (
+                                            <>
+                                                {' '}
+                                                <span
+                                                    onClick={() => setIsExpanded(false)}
+                                                    style={{
+                                                        color: '#1877f2',
+                                                        fontWeight: '600',
+                                                        cursor: 'pointer',
+                                                        userSelect: 'none'
+                                                    }}
+                                                >
+                                                    See less
+                                                </span>
+                                            </>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
@@ -449,7 +486,7 @@
                                 headline: row[CONFIG.COPIES_COLUMNS.HEADLINE] || '',
                                 notes: row[CONFIG.COPIES_COLUMNS.NOTES] || ''
                             }))
-                            .filter(copy => copy.copyId); // Only show ads with names
+                            .filter(copy => copy.copyId);
 
                         setAdCopies(copies);
                     }
